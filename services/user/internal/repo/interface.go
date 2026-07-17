@@ -8,4 +8,5 @@ import (
 
 type UserRepo interface {
 	Create(ctx context.Context, user *domain.User) error
+	Exists(ctx context.Context, username string) (bool, error)
 }
