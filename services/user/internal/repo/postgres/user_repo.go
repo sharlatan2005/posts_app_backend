@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/sharlatan2005/posts_app_backend/pkg/repoerrors"
 	"github.com/sharlatan2005/posts_app_backend/services/user/internal/domain"
 )
 
@@ -34,11 +35,11 @@ func (r *UserRepo) Create(ctx context.Context, user *domain.User) error {
 	)
 
 	if err != nil {
-		return fmt.Errorf("Query error: %w", err)
+		return fmt.Errorf("Insert query: %w", repoerrors.ErrDB)
 	}
 
 	if rows := result.RowsAffected(); rows == 0 {
-		return ErrDuplicate
+		return repoerrors.ErrDuplicate
 	}
 
 	return nil

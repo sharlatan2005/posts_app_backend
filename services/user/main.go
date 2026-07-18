@@ -1,20 +1,25 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	"log"
+	"net/http"
+	"os"
+	"os/signal"
 	"path/filepath"
+	"syscall"
+	"time"
 
-	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"github.com/sharlatan2005/posts_app_backend/services/user/internal/config"
-	"github.com/sharlatan2005/posts_app_backend/services/user/internal/domain"
+	"github.com/sharlatan2005/posts_app_backend/services/user/internal/httphandler"
 	"github.com/sharlatan2005/posts_app_backend/services/user/internal/repo"
 	"github.com/sharlatan2005/posts_app_backend/services/user/internal/repo/postgres"
+	"github.com/sharlatan2005/posts_app_backend/services/user/internal/server"
+	"github.com/sharlatan2005/posts_app_backend/services/user/internal/service"
 )
 
 func main() {
+	// Прогрузка .env (глобального и локального)
 	if err := godotenv.Load(".env"); err != nil {
 		log.Println("No local .env in cmd/")
 	}
@@ -32,19 +37,30 @@ func main() {
 
 	var userRepo repo.UserRepo
 	userRepo = postgres.NewUserRepo(db)
-	user := &domain.User{
-		ID:            uuid.New(),
-		Username:      "pidor",
-		Password_hash: "sdas",
-		Name:          "Pidor",
-		Surname:       "Pidorovich",
+	userService := service.NewUserService(userRepo)
+	userHandler := httphandler.NewUserHandler(userService)
+
+	router := server.NewRouter()
+	router.SetupRoutes(userHandler)
+
+	srv := &http.Server{
+		Addr:         ":" + cfg.ServicePort,
+		Handler:      router,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  60 * time.Second,
 	}
 
-	err = userRepo.Create(context.Background(), user)
+	go func() {
+		log.Printf("🚀 Server running on http://localhost:%s", cfg.ServicePort)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Server failed: %v", err)
+		}
+	}()
 
-	if err != nil {
-		log.Fatalf("User creation: %+v", err)
-	}
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
 
-	fmt.Printf("Score: %d, created_at: %s", user.Score, user.Created_at.String())
+	log.Println("Shutting down server...")
 }
