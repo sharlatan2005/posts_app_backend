@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/sharlatan2005/posts_app_backend/pkg/repoerrors"
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/repoerrors"
 	"github.com/sharlatan2005/posts_app_backend/services/user/internal/domain"
 	"github.com/sharlatan2005/posts_app_backend/services/user/internal/repo"
 	"github.com/sharlatan2005/posts_app_backend/services/user/internal/servErrors"
@@ -21,14 +21,10 @@ func NewUserService(userRepo repo.UserRepo) *UserService {
 }
 
 // Возвращает ошибки: ErrUsernameEmpty, ErrNameEmpty, ErrPasswordEmpty, ErrUserAlreadyExists
-func (s *UserService) Create(ctx context.Context, username string, password_hash string,
-	name string, surname string) error {
+func (s *UserService) Create(ctx context.Context, username string, password_hash string) error {
 
 	if username == "" {
 		return servErrors.ErrUsernameEmpty
-	}
-	if name == "" {
-		return servErrors.ErrNameEmpty
 	}
 	if password_hash == "" {
 		return servErrors.ErrPasswordEmpty
@@ -38,8 +34,6 @@ func (s *UserService) Create(ctx context.Context, username string, password_hash
 		ID:            uuid.New(),
 		Username:      username,
 		Password_hash: password_hash,
-		Name:          name,
-		Surname:       surname,
 	}
 
 	err := s.userRepo.Create(ctx, user)

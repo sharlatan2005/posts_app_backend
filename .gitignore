@@ -1,1 +1,16 @@
-**/.env
+# Env files
+**/.env*
+!*.example
+
+# Go
+go.work
+go.work.sum
+
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out

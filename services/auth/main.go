@@ -8,11 +8,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/sharlatan2005/posts_app_backend/services/user/internal/config"
+	"github.com/sharlatan2005/posts_app_backend/services/auth/internal/config"
+	"github.com/sharlatan2005/posts_app_backend/services/auth/internal/server"
 	"github.com/sharlatan2005/posts_app_backend/services/user/internal/httphandler"
-	"github.com/sharlatan2005/posts_app_backend/services/user/internal/repo"
 	"github.com/sharlatan2005/posts_app_backend/services/user/internal/repo/postgres"
-	"github.com/sharlatan2005/posts_app_backend/services/user/internal/server"
 	"github.com/sharlatan2005/posts_app_backend/services/user/internal/service"
 )
 
@@ -33,8 +32,6 @@ func main() {
 		log.Fatalf("Connection to database can't be established: %+v", err)
 	}
 
-	var userRepo repo.UserRepo
-	userRepo = postgres.NewUserRepo(db)
 	userService := service.NewUserService(userRepo)
 	userHandler := httphandler.NewUserHandler(userService)
 

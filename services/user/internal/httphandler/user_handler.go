@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/sharlatan2005/posts_app_backend/pkg/responseutils"
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/responseutils"
 	"github.com/sharlatan2005/posts_app_backend/services/user/internal/servErrors"
 	"github.com/sharlatan2005/posts_app_backend/services/user/internal/service"
 )
@@ -30,8 +30,6 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Username      string `json:"username"`
 		Password_hash string `json:"password_hash"`
-		Name          string `json:"name"`
-		Surname       string `json:"surname"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -39,20 +37,17 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.userService.Create(r.Context(), req.Username, req.Password_hash, req.Name, req.Surname)
+	err := h.userService.Create(r.Context(), req.Username, req.Password_hash)
 	if err != nil {
 		switch {
 		case errors.Is(err, servErrors.ErrUsernameEmpty):
-			responseutils.BadRequest(w, err.Error())
-			return
-		case errors.Is(err, servErrors.ErrNameEmpty):
 			responseutils.BadRequest(w, err.Error())
 			return
 		case errors.Is(err, servErrors.ErrPasswordEmpty):
 			responseutils.BadRequest(w, err.Error())
 			return
 		case errors.Is(err, servErrors.ErrUserAlreadyExists):
-			responseutils.BadRequest(w, err.Error())
+			responseutils.Conflict(w, err.Error())
 			return
 		default:
 			responseutils.InternalServerError(w, "Внутренняя ошибка сервера")
@@ -60,5 +55,5 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	responseutils.JSON(w, http.StatusOK, fmt.Sprintf("Пользователь %s успешно сохранен в БД", req.Username))
+	responseutils.JSON(w, http.StatusCreated, fmt.Sprintf("Пользователь %s успешно сохранен в БД", req.Username))
 }

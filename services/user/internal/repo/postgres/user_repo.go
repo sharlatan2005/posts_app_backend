@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/sharlatan2005/posts_app_backend/pkg/repoerrors"
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/repoerrors"
 	"github.com/sharlatan2005/posts_app_backend/services/user/internal/domain"
 )
 
@@ -20,8 +20,8 @@ func NewUserRepo(db *DB) *UserRepo {
 
 func (r *UserRepo) Create(ctx context.Context, user *domain.User) error {
 	query := fmt.Sprintf(`
-		INSERT INTO %s (id, username, password_hash, name, surname)
-		VALUES ($1, $2, $3, $4, $5)
+		INSERT INTO %s (id, username, password_hash)
+		VALUES ($1, $2, $3)
 		ON CONFLICT (username) DO NOTHING
 		RETURNING score, created_at
 	`, tableName)
@@ -30,8 +30,6 @@ func (r *UserRepo) Create(ctx context.Context, user *domain.User) error {
 		user.ID,
 		user.Username,
 		user.Password_hash,
-		user.Name,
-		user.Surname,
 	)
 
 	if err != nil {
