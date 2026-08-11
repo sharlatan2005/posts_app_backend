@@ -8,16 +8,16 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients/user"
 	"github.com/sharlatan2005/posts_app_backend/services/auth/internal/config"
+	"github.com/sharlatan2005/posts_app_backend/services/auth/internal/httphandler"
 	"github.com/sharlatan2005/posts_app_backend/services/auth/internal/server"
-	"github.com/sharlatan2005/posts_app_backend/services/user/internal/httphandler"
-	"github.com/sharlatan2005/posts_app_backend/services/user/internal/repo/postgres"
-	"github.com/sharlatan2005/posts_app_backend/services/user/internal/service"
+	"github.com/sharlatan2005/posts_app_backend/services/auth/internal/service"
 )
 
 func main() {
 	// Прогрузка .env (глобального и локального)
-	// if err := godotenv.Load(".env"); err != nil {
+	// if err := godotenv.Load(".env.local"); err != nil {
 	// 	log.Println("No local .env in cmd/")
 	// }
 
@@ -27,13 +27,10 @@ func main() {
 	// }
 
 	cfg := config.Load()
-	db, err := postgres.NewDB(cfg)
-	if err != nil {
-		log.Fatalf("Connection to database can't be established: %+v", err)
-	}
 
-	userService := service.NewUserService(userRepo)
-	userHandler := httphandler.NewUserHandler(userService)
+	userClient := user.NewClient(cfg.UserServiceURL)
+	userService := service.NewAuthService(cfg.JWTSecret, userClient)
+	userHandler := httphandler.NewAuthHandler(userService)
 
 	router := server.NewRouter()
 	router.SetupRoutes(userHandler)

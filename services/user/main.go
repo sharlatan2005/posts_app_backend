@@ -5,9 +5,11 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/sharlatan2005/posts_app_backend/services/user/internal/config"
 	"github.com/sharlatan2005/posts_app_backend/services/user/internal/httphandler"
 	"github.com/sharlatan2005/posts_app_backend/services/user/internal/repo"
@@ -18,14 +20,14 @@ import (
 
 func main() {
 	// Прогрузка .env (глобального и локального)
-	// if err := godotenv.Load(".env"); err != nil {
-	// 	log.Println("No local .env in cmd/")
-	// }
+	if err := godotenv.Load(".env.local"); err != nil {
+		log.Println("No local .env in cmd/")
+	}
 
-	// rootEnv := filepath.Join("..", "..", "configs", ".env")
-	// if err := godotenv.Load(rootEnv); err != nil {
-	// 	log.Println("No root .env in configs/")
-	// }
+	rootEnv := filepath.Join("..", "..", "configs", ".env.global")
+	if err := godotenv.Load(rootEnv); err != nil {
+		log.Println("No root .env in configs/")
+	}
 
 	cfg := config.Load()
 	db, err := postgres.NewDB(cfg)

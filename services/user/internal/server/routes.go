@@ -20,6 +20,7 @@ func (r *Router) SetupRoutes(
 	userHandler *httphandler.UserHandler,
 ) {
 	r.mux.HandleFunc("POST /create_user", userHandler.CreateUser)
+	r.mux.HandleFunc("GET /exists", userHandler.Exists)
 }
 
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {

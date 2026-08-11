@@ -19,3 +19,7 @@ func NewRouter() *Router {
 func (r *Router) SetupRoutes(authHandler *httphandler.AuthHandler) {
 	r.mux.HandleFunc("POST /register", authHandler.Register)
 }
+
+func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	r.mux.ServeHTTP(w, req)
+}

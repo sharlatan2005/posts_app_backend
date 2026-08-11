@@ -59,6 +59,5 @@ func (s *UserService) Exists(ctx context.Context, username string) (bool, error)
 		}
 
 	}
-
 	return exists, nil
 }

@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients"
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients/errorsutils"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/responseutils"
 	"github.com/sharlatan2005/posts_app_backend/services/auth/internal/service"
 )
@@ -38,7 +38,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 	result, err := h.authService.RegisterUser(r.Context(), req.Username, req.PasswordHash)
 	if err != nil {
-		var extErr *clients.ExternalServiceError
+		var extErr *errorsutils.ExternalServiceError
 		switch {
 		case errors.As(err, &extErr):
 			responseutils.Error(w, extErr.StatusCode, extErr.ErrorText)

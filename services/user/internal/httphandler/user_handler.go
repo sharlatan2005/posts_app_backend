@@ -57,3 +57,30 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	responseutils.JSON(w, http.StatusCreated, fmt.Sprintf("Пользователь %s успешно сохранен в БД", req.Username))
 }
+
+func (h *UserHandler) Exists(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		responseutils.StatusMethodNotAllowed(w, "Неправильный метод (должен быть GET)")
+		return
+	}
+
+	var req struct {
+		Username string `json:"username"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		responseutils.BadRequest(w, "Invalid request body")
+		return
+	}
+
+	exists, err := h.userService.Exists(r.Context(), req.Username)
+	if err != nil {
+		switch {
+		default:
+			responseutils.InternalServerError(w, "Внутренняя ошибка сервера")
+			return
+		}
+	}
+
+	responseutils.JSON(w, http.StatusOK, exists)
+}

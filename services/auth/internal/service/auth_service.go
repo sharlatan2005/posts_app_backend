@@ -8,7 +8,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients"
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients/errorsutils"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients/user"
 )
 
@@ -34,7 +34,7 @@ type RegisterResult struct {
 func (s *AuthService) RegisterUser(ctx context.Context, username string, password_hash string) (*RegisterResult, error) {
 	err := s.userClient.CreateUser(ctx, username, password_hash)
 	if err != nil {
-		var extErr *clients.ExternalServiceError
+		var extErr *errorsutils.ExternalServiceError
 		switch {
 		case errors.As(err, &extErr):
 			return nil, extErr
