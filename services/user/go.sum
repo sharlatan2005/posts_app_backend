@@ -17,6 +17,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/sharlatan2005/chat_app_go_backend_pkg v0.0.0-20260720185542-1a3309699ded h1:DZFN3HnNo1IIvfThTBFd3PG6RtOW8/0Eptx7TlCvbU8=
 github.com/sharlatan2005/chat_app_go_backend_pkg v0.0.0-20260720185542-1a3309699ded/go.mod h1:b3Pqxe+SHVmL1IJZiigwcx17TqhPgkKEm52fs5JrSBc=
+github.com/sharlatan2005/chat_app_go_backend_pkg v0.0.0-20260812111019-19cbc87199b8 h1:Wj/xm7AJSQPagzZSOCbiExUHpY67nP69YW0UmJr03I4=
+github.com/sharlatan2005/chat_app_go_backend_pkg v0.0.0-20260812111019-19cbc87199b8/go.mod h1:b3Pqxe+SHVmL1IJZiigwcx17TqhPgkKEm52fs5JrSBc=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=

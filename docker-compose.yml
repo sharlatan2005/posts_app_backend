@@ -37,6 +37,22 @@ services:
                 condition: service_healthy
         networks:
             - app-network
+    auth-service:
+        build:
+            context: ./services/auth
+            dockerfile: Dockerfile
+        container_name: auth_service
+        restart: unless-stopped
+        env_file:
+            - configs/.env.global
+            - services/auth/.env.local
+        ports:
+            - "8081:8081"
+        depends_on:
+            postgres:
+                condition: service_healthy
+        networks:
+            - app-network
 volumes:
     postgres_data:
 networks:

@@ -5,5 +5,5 @@ go 1.26.1
 require (
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
-	github.com/sharlatan2005/chat_app_go_backend_pkg v0.0.0-20260720185542-1a3309699ded
+	github.com/sharlatan2005/chat_app_go_backend_pkg v0.0.0-20260812111019-19cbc87199b8
 )

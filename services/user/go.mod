@@ -6,7 +6,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.10.0
 	github.com/joho/godotenv v1.5.1
-	github.com/sharlatan2005/chat_app_go_backend_pkg v0.0.0-20260720185542-1a3309699ded
+	github.com/sharlatan2005/chat_app_go_backend_pkg v0.0.0-20260812111019-19cbc87199b8
 )
 
 require (
