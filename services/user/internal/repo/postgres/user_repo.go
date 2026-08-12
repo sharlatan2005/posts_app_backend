@@ -2,8 +2,10 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/repoerrors"
 	"github.com/sharlatan2005/posts_app_backend/services/user/internal/domain"
 )
@@ -59,4 +61,40 @@ func (r *UserRepo) Exists(ctx context.Context, username string) (bool, error) {
 	}
 
 	return exists, nil
+}
+
+func (r *UserRepo) GetByUsername(ctx context.Context, username string) (*domain.User, error) {
+	query := fmt.Sprintf(
+		`
+		SELECT id, username, password_hash, name, surname, score, created_at
+		FROM %s
+		WHERE username = $1
+	`, tableName)
+
+	user := &domain.User{}
+
+	err := r.db.Pool.QueryRow(
+		ctx,
+		query,
+		username,
+	).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Password_hash,
+		&user.Name,
+		&user.Surname,
+		&user.Score,
+		&user.Created_at,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			return nil, repoerrors.ErrNotFound
+		default:
+			return nil, fmt.Errorf("Query of user: %w", err)
+		}
+	}
+
+	return user, nil
 }

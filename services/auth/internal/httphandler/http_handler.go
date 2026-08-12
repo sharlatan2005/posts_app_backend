@@ -8,6 +8,7 @@ import (
 
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients/errorsutils"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/responseutils"
+	"github.com/sharlatan2005/posts_app_backend/services/auth/internal/serverrors"
 	"github.com/sharlatan2005/posts_app_backend/services/auth/internal/service"
 )
 
@@ -51,4 +52,39 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseutils.JSON(w, http.StatusCreated, result)
+}
+
+func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		responseutils.StatusMethodNotAllowed(w, "Неправильный метод. Нужен POST")
+	}
+
+	var req struct {
+		Username     string `json:"username"`
+		PasswordHash string `json:"password_hash"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		responseutils.BadRequest(w, "Invalid request body")
+		return
+	}
+
+	result, err := h.authService.LoginUser(r.Context(), req.Username, req.PasswordHash)
+	if err != nil {
+		var extErr *errorsutils.ExternalServiceError
+		switch {
+		case errors.As(err, &extErr):
+			responseutils.Error(w, extErr.StatusCode, extErr.ErrorText)
+			return
+		case errors.Is(err, serverrors.ErrWrongPassword):
+			responseutils.Unauthorized(w, err.Error())
+			return
+		default:
+			log.Printf("Unhandled error: %+v", err)
+			responseutils.InternalServerError(w, "Внутренняя ошибка сервера")
+			return
+		}
+	}
+
+	responseutils.JSON(w, http.StatusOK, result)
 }

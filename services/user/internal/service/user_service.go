@@ -61,3 +61,16 @@ func (s *UserService) Exists(ctx context.Context, username string) (bool, error)
 	}
 	return exists, nil
 }
+
+func (s *UserService) GetByUsername(ctx context.Context, username string) (*domain.User, error) {
+	user, err := s.userRepo.GetByUsername(ctx, username)
+	if err != nil {
+		switch {
+		case errors.Is(err, repoerrors.ErrNotFound):
+			return nil, servErrors.ErrUserNotFound
+		default:
+			return nil, err
+		}
+	}
+	return user, nil
+}

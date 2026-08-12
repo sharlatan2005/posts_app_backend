@@ -21,6 +21,7 @@ func (r *Router) SetupRoutes(
 ) {
 	r.mux.HandleFunc("POST /create_user", userHandler.CreateUser)
 	r.mux.HandleFunc("GET /exists", userHandler.Exists)
+	r.mux.HandleFunc("GET /get_user_by_username", userHandler.GetByUsername)
 }
 
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {

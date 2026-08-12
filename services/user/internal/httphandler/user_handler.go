@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/responseutils"
@@ -83,4 +84,28 @@ func (h *UserHandler) Exists(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseutils.JSON(w, http.StatusOK, exists)
+}
+
+func (h *UserHandler) GetByUsername(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		responseutils.StatusMethodNotAllowed(w, "Неправильный метод (должен быть GET)")
+		return
+	}
+
+	username := r.URL.Query().Get("username")
+
+	user, err := h.userService.GetByUsername(r.Context(), username)
+	if err != nil {
+		switch {
+		case errors.Is(err, servErrors.ErrUserNotFound):
+			responseutils.NotFound(w, "Нет такого пользователя")
+			return
+		default:
+			log.Println(err.Error())
+			responseutils.InternalServerError(w, "Внутренняя ошибка сервера")
+			return
+		}
+	}
+
+	responseutils.JSON(w, http.StatusOK, user)
 }
