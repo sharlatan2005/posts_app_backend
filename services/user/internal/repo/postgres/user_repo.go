@@ -35,7 +35,7 @@ func (r *UserRepo) Create(ctx context.Context, user *domain.User) error {
 	)
 
 	if err != nil {
-		return fmt.Errorf("Insert query: %w", repoerrors.ErrDB)
+		return fmt.Errorf("Insert query: %w", err)
 	}
 
 	if rows := result.RowsAffected(); rows == 0 {

@@ -12,7 +12,12 @@ create table users.users(
 
 CREATE SCHEMA IF NOT EXISTS posts;
 
-
+create table posts.posts(
+	id uuid primary key,
+	author_id uuid not null,
+	text text not null,
+	created_at timestamp not null
+);
 
 CREATE SCHEMA IF NOT EXISTS comments;
 CREATE SCHEMA IF NOT EXISTS likes;

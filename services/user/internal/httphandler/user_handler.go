@@ -51,6 +51,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 			responseutils.Conflict(w, err.Error())
 			return
 		default:
+			log.Println(err.Error())
 			responseutils.InternalServerError(w, "Внутренняя ошибка сервера")
 			return
 		}
@@ -78,6 +79,7 @@ func (h *UserHandler) Exists(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		default:
+			log.Println(err.Error())
 			responseutils.InternalServerError(w, "Внутренняя ошибка сервера")
 			return
 		}
