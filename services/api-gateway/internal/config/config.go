@@ -9,15 +9,19 @@ type Config struct {
 	AuthServicePort string
 	UserServiceHost string
 	UserServicePort string
+	PostServiceHost string
+	PostServicePort string
 	ServicePort     string
 }
 
 func Load() *Config {
 	return &Config{
 		AuthServiceHost: getEnv("AUTH_SERVICE_HOST", "auth-service"),
-		AuthServicePort: getEnv("AUTH_SERVICE_PORT", "8080"),
+		AuthServicePort: getEnv("AUTH_SERVICE_PORT", "8081"),
 		UserServiceHost: getEnv("USER_SERVICE_HOST", "user-service"),
 		UserServicePort: getEnv("USER_SERVICE_PORT", "8080"),
+		PostServiceHost: getEnv("POST_SERVICE_HOST", "post-service"),
+		PostServicePort: getEnv("POST_SERVICE_PORT", "8082"),
 		ServicePort:     getEnv("SERVICE_PORT", "8080"),
 	}
 }

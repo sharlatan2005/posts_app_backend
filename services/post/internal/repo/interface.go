@@ -9,6 +9,6 @@ import (
 
 type PostRepo interface {
 	Create(ctx context.Context, post *domain.Post) error
-	Delete(ctx context.Context, post_id uuid.UUID) error
-	Update(ctx context.Context, post_id uuid.UUID, newText string) error
+	Delete(ctx context.Context, postID uuid.UUID) error
+	Update(ctx context.Context, postID uuid.UUID, newText string) error
 }

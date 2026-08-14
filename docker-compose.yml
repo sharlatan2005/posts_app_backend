@@ -21,6 +21,19 @@ services:
             interval: 10s
             timeout: 5s
             retries: 5
+    api-gateway-service:
+        build:
+            context: ./services/api-gateway
+            dockerfile: Dockerfile
+        container_name: api_gateway_service
+        restart: unless-stopped
+        env_file:
+            - configs/.env.global
+            - services/api-gateway/.env.local
+        ports:
+            - "8000:8000"
+        networks:
+            - app-network
     user-service:
         build:
             context: ./services/user
@@ -48,6 +61,22 @@ services:
             - services/auth/.env.local
         ports:
             - "8081:8081"
+        depends_on:
+            postgres:
+                condition: service_healthy
+        networks:
+            - app-network
+    post-service:
+        build:
+            context: ./services/post
+            dockerfile: Dockerfile
+        container_name: post_service
+        restart: unless-stopped
+        env_file:
+            - configs/.env.global
+            - services/post/.env.local
+        ports:
+            - "8082:8082"
         depends_on:
             postgres:
                 condition: service_healthy

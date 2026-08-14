@@ -7,7 +7,7 @@ create table users.users(
 	name text not null,
 	surname text not null,
 	score integer,
-	created_at timestamp default current_timestamp
+	created_at timestamp not null default current_timestamp
 );
 
 CREATE SCHEMA IF NOT EXISTS posts;
@@ -16,10 +16,19 @@ create table posts.posts(
 	id uuid primary key,
 	author_id uuid not null,
 	text text not null,
-	created_at timestamp not null
+	created_at timestamp not null default current_timestamp
 );
 
 CREATE SCHEMA IF NOT EXISTS comments;
+
+create table comments.comments(
+	id uuid primary key,
+	post_id uuid not null,
+	author_id uuid not null,
+	text text not null,
+	created_at timestamp not null default current_timestamp
+);
+
 CREATE SCHEMA IF NOT EXISTS likes;
 
 GRANT ALL PRIVILEGES ON SCHEMA users TO postgres;
