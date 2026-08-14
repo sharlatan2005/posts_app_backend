@@ -69,7 +69,7 @@ func (s *PostService) Update(ctx context.Context, postID uuid.UUID, newText stri
 		case errors.Is(err, repoerrors.ErrNotFound):
 			return servErrors.ErrPostNotFound
 		default:
-			return fmt.Errorf("Delete post %s: %w", postID.String(), err)
+			return fmt.Errorf("Update post %s: %w", postID.String(), err)
 		}
 	}
 	return nil

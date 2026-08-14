@@ -28,6 +28,20 @@ func (r *Router) SetupRoutes(
 			authStruct.Authenticate,
 			middleware.CORS,
 			middleware.Logger))
+
+	r.mux.HandleFunc("DELETE /api/comment/delete_comment",
+		middleware.Chain(
+			commentHandler.DeleteComment,
+			authStruct.Authenticate,
+			middleware.CORS,
+			middleware.Logger))
+
+	r.mux.HandleFunc("PUT /api/comment/update_comment",
+		middleware.Chain(
+			commentHandler.UpdateComment,
+			authStruct.Authenticate,
+			middleware.CORS,
+			middleware.Logger))
 }
 
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {

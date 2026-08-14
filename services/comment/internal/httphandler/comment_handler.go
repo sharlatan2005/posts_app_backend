@@ -55,61 +55,67 @@ func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 	responseutils.JSON(w, http.StatusCreated, "Комментарий успешно создан.")
 }
 
-// func (h *CommentHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
-// 	if r.Method != http.MethodDelete {
-// 		responseutils.StatusMethodNotAllowed(w, "Неправильный метод (должен быть DELETE)")
-// 		return
-// 	}
+func (h *CommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		responseutils.StatusMethodNotAllowed(w, "Неправильный метод (должен быть DELETE)")
+		return
+	}
 
-// 	post_id := r.URL.Query().Get("post_id")
+	comment_id := r.URL.Query().Get("comment_id")
 
-// 	err := h.postService.Delete(r.Context(), uuid.MustParse(post_id))
-// 	if err != nil {
-// 		switch {
-// 		case errors.Is(err, servErrors.ErrPostNotFound):
-// 			responseutils.NotFound(w, err.Error())
-// 			return
-// 		default:
-// 			log.Println(err.Error())
-// 			responseutils.InternalServerError(w, "Внутренняя ошибка сервера")
-// 			return
-// 		}
-// 	}
+	err := h.commentService.Delete(r.Context(), uuid.MustParse(comment_id))
+	if err != nil {
+		switch {
+		case errors.Is(err, servErrors.ErrCommentNotFound):
+			responseutils.NotFound(w, err.Error())
+			return
+		case errors.Is(err, servErrors.ErrCommentForbiddenAction):
+			responseutils.Forbidden(w, err.Error())
+			return
+		default:
+			log.Println(err.Error())
+			responseutils.InternalServerError(w, "Внутренняя ошибка сервера")
+			return
+		}
+	}
 
-// 	responseutils.JSON(w, http.StatusCreated, "Пост успешно удалён.")
-// }
+	responseutils.JSON(w, http.StatusCreated, "Комментарий успешно удалён.")
+}
 
-// func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
-// 	if r.Method != http.MethodPut {
-// 		responseutils.StatusMethodNotAllowed(w, "Неправильный метод (должен быть PUT)")
-// 		return
-// 	}
+func (h *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		responseutils.StatusMethodNotAllowed(w, "Неправильный метод (должен быть PUT)")
+		return
+	}
 
-// 	var req struct {
-// 		PostID  string `json:"post_id"`
-// 		NewText string `json:"new_text"`
-// 	}
+	var req struct {
+		CommentID string `json:"comment_id"`
+		NewText   string `json:"new_text"`
+	}
 
-// 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-// 		responseutils.BadRequest(w, "Invalid request body")
-// 		return
-// 	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		responseutils.BadRequest(w, "Invalid request body")
+		return
+	}
 
-// 	err := h.postService.Update(r.Context(), uuid.MustParse(req.PostID), req.NewText)
-// 	if err != nil {
-// 		switch {
-// 		case errors.Is(err, servErrors.ErrPostNotFound):
-// 			responseutils.NotFound(w, err.Error())
-// 			return
-// 		case errors.Is(err, servErrors.ErrPostTextEmpty):
-// 			responseutils.BadRequest(w, err.Error())
-// 			return
-// 		default:
-// 			log.Println(err.Error())
-// 			responseutils.InternalServerError(w, "Внутренняя ошибка сервера")
-// 			return
-// 		}
-// 	}
+	err := h.commentService.Update(r.Context(), uuid.MustParse(req.CommentID), req.NewText)
+	if err != nil {
+		switch {
+		case errors.Is(err, servErrors.ErrCommentNotFound):
+			responseutils.NotFound(w, err.Error())
+			return
+		case errors.Is(err, servErrors.ErrCommentTextEmpty):
+			responseutils.BadRequest(w, err.Error())
+			return
+		case errors.Is(err, servErrors.ErrCommentForbiddenAction):
+			responseutils.Forbidden(w, err.Error())
+			return
+		default:
+			log.Println(err.Error())
+			responseutils.InternalServerError(w, "Внутренняя ошибка сервера")
+			return
+		}
+	}
 
-// 	responseutils.JSON(w, http.StatusCreated, "Текст поста успешно изменен.")
-// }
+	responseutils.JSON(w, http.StatusCreated, "Текст поста успешно изменен.")
+}

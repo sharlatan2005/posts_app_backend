@@ -11,4 +11,5 @@ type CommentRepo interface {
 	Create(ctx context.Context, comment *domain.Comment) error
 	Delete(ctx context.Context, commentID uuid.UUID) error
 	Update(ctx context.Context, commentID uuid.UUID, newText string) error
+	GetByID(ctx context.Context, commentID uuid.UUID) (*domain.Comment, error)
 }

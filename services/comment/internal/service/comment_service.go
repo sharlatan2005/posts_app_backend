@@ -2,10 +2,12 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/ctxutils"
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/repoerrors"
 	"github.com/sharlatan2005/posts_app_backend/services/comment/internal/domain"
 	"github.com/sharlatan2005/posts_app_backend/services/comment/internal/repo"
 	"github.com/sharlatan2005/posts_app_backend/services/comment/internal/servErrors"
@@ -43,33 +45,63 @@ func (s *CommentService) Create(ctx context.Context, postID uuid.UUID, text stri
 	return nil
 }
 
-// func (s *PostService) Delete(ctx context.Context, postID uuid.UUID) error {
-// 	err := s.postRepo.Delete(ctx, postID)
-// 	if err != nil {
-// 		switch {
-// 		case errors.Is(err, repoerrors.ErrNotFound):
-// 			return servErrors.ErrPostNotFound
-// 		default:
-// 			return fmt.Errorf("Delete post %s: %w", postID.String(), err)
-// 		}
-// 	}
-// 	return nil
-// }
+func (s *CommentService) Delete(ctx context.Context, commentID uuid.UUID) error {
+	comment, err := s.commentRepo.GetByID(ctx, commentID)
+	if err != nil {
+		switch {
+		case errors.Is(err, repoerrors.ErrNotFound):
+			return servErrors.ErrCommentNotFound
+		default:
+			return err
+		}
+	}
 
-// func (s *PostService) Update(ctx context.Context, postID uuid.UUID, newText string) error {
-// 	if newText == "" {
-// 		return servErrors.ErrPostTextEmpty
-// 	}
+	userID := ctxutils.GetUserID(ctx)
+	if comment.AuthorID != userID {
+		return servErrors.ErrCommentForbiddenAction
+	}
 
-// 	err := s.postRepo.Update(ctx, postID, newText)
+	err = s.commentRepo.Delete(ctx, commentID)
+	if err != nil {
+		switch {
+		case errors.Is(err, repoerrors.ErrNotFound):
+			return servErrors.ErrCommentNotFound
+		default:
+			return fmt.Errorf("Delete comment %s: %w", commentID.String(), err)
+		}
+	}
+	return nil
+}
 
-// 	if err != nil {
-// 		switch {
-// 		case errors.Is(err, repoerrors.ErrNotFound):
-// 			return servErrors.ErrPostNotFound
-// 		default:
-// 			return fmt.Errorf("Delete post %s: %w", postID.String(), err)
-// 		}
-// 	}
-// 	return nil
-// }
+func (s *CommentService) Update(ctx context.Context, commentID uuid.UUID, newText string) error {
+	if newText == "" {
+		return servErrors.ErrCommentTextEmpty
+	}
+
+	comment, err := s.commentRepo.GetByID(ctx, commentID)
+	if err != nil {
+		switch {
+		case errors.Is(err, repoerrors.ErrNotFound):
+			return servErrors.ErrCommentNotFound
+		default:
+			return err
+		}
+	}
+
+	userID := ctxutils.GetUserID(ctx)
+	if comment.AuthorID != userID {
+		return servErrors.ErrCommentForbiddenAction
+	}
+
+	err = s.commentRepo.Update(ctx, commentID, newText)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, repoerrors.ErrNotFound):
+			return servErrors.ErrCommentNotFound
+		default:
+			return fmt.Errorf("Update comment %s: %w", commentID.String(), err)
+		}
+	}
+	return nil
+}
