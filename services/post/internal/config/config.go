@@ -7,28 +7,32 @@ import (
 )
 
 type Config struct {
-	DBHost         string
-	DBPort         int
-	DBUser         string
-	DBPassword     string
-	DBName         string
-	DBSSLMode      string
-	ServicePort    string
-	JWTSecret      string
-	UserServiceURL string
+	DBHost            string
+	DBPort            int
+	DBUser            string
+	DBPassword        string
+	DBName            string
+	DBSSLMode         string
+	ServicePort       string
+	JWTSecret         string
+	UserServiceURL    string
+	CommentServiceURL string
+	LikeServiceURL    string
 }
 
 func Load() *Config {
 	return &Config{
-		DBHost:         getEnv("DB_HOST", "localhost"),
-		DBPort:         getEnvAsInt("DB_PORT", 5432),
-		DBUser:         getEnv("DB_USER", "postgres"),
-		DBPassword:     getEnv("DB_PASSWORD", "postgres"),
-		DBName:         getEnv("DB_NAME", "posts_app_db"),
-		DBSSLMode:      getEnv("DB_SSL_MODE", "disable"),
-		ServicePort:    getEnv("SERVICE_PORT", "8082"),
-		JWTSecret:      getEnv("JWT_SECRET", "my_beautiful_secret"),
-		UserServiceURL: getEnv("USER_SERVICE_URL", "http://user-service:8080"),
+		DBHost:            getEnv("DB_HOST", "localhost"),
+		DBPort:            getEnvAsInt("DB_PORT", 5432),
+		DBUser:            getEnv("DB_USER", "postgres"),
+		DBPassword:        getEnv("DB_PASSWORD", "postgres"),
+		DBName:            getEnv("DB_NAME", "posts_app_db"),
+		DBSSLMode:         getEnv("DB_SSL_MODE", "disable"),
+		ServicePort:       getEnv("SERVICE_PORT", "8082"),
+		JWTSecret:         getEnv("JWT_SECRET", "my_beautiful_secret"),
+		UserServiceURL:    getEnv("USER_SERVICE_URL", "http://user-service:8080"),
+		CommentServiceURL: getEnv("COMMENT_SERVICE_URL", "http://comment-service:8083"),
+		LikeServiceURL:    getEnv("LIKE_SERVICE_URL", "http://like-service:8084"),
 	}
 }
 

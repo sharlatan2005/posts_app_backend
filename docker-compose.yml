@@ -98,6 +98,22 @@ services:
                 condition: service_healthy
         networks:
             - app-network
+    like-service:
+        build:
+            context: ./services/like
+            dockerfile: Dockerfile
+        container_name: like_service
+        restart: unless-stopped
+        env_file:
+            - configs/.env.global
+            - services/like/.env.local
+        ports:
+            - "8084:8084"
+        depends_on:
+            postgres:
+                condition: service_healthy
+        networks:
+            - app-network
 volumes:
     postgres_data:
 networks:

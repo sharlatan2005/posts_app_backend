@@ -4,9 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients/comment"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients/errorsutils"
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients/like"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients/user"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/ctxutils"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/repoerrors"
@@ -16,14 +19,21 @@ import (
 )
 
 type PostService struct {
-	postRepo   repo.PostRepo
-	userClient user.Client
+	postRepo      repo.PostRepo
+	userClient    user.Client
+	commentClient comment.Client
+	likeClient    like.Client
 }
 
-func NewPostService(postRepo repo.PostRepo, userClient user.Client) *PostService {
+func NewPostService(postRepo repo.PostRepo,
+	userClient user.Client,
+	commentClient comment.Client,
+	likeClient like.Client) *PostService {
 	return &PostService{
-		postRepo:   postRepo,
-		userClient: userClient,
+		postRepo:      postRepo,
+		userClient:    userClient,
+		commentClient: commentClient,
+		likeClient:    likeClient,
 	}
 }
 
@@ -51,7 +61,33 @@ func (s *PostService) Create(ctx context.Context, text string) error {
 }
 
 func (s *PostService) Delete(ctx context.Context, postID uuid.UUID) error {
-	err := s.postRepo.Delete(ctx, postID)
+	err := s.commentClient.DeleteCommentsByPost(ctx, postID)
+	if err != nil {
+		var extErr *errorsutils.ExternalServiceError
+		switch {
+		case errors.As(err, &extErr):
+			if extErr.StatusCode != http.StatusNotFound {
+				return extErr
+			}
+		default:
+			return fmt.Errorf("Deleting comments on post: %w", err)
+		}
+	}
+
+	err = s.likeClient.DeleteLikesByPost(ctx, postID)
+	if err != nil {
+		var extErr *errorsutils.ExternalServiceError
+		switch {
+		case errors.As(err, &extErr):
+			if extErr.StatusCode != http.StatusNotFound {
+				return extErr
+			}
+		default:
+			return fmt.Errorf("Deleting likes on post: %w", err)
+		}
+	}
+
+	err = s.postRepo.Delete(ctx, postID)
 	if err != nil {
 		switch {
 		case errors.Is(err, repoerrors.ErrNotFound):

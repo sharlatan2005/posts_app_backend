@@ -64,10 +64,13 @@ func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 
 	err := h.postService.Delete(r.Context(), uuid.MustParse(postID))
 	if err != nil {
+		var extErr *errorsutils.ExternalServiceError
 		switch {
 		case errors.Is(err, servErrors.ErrPostNotFound):
 			responseutils.NotFound(w, err.Error())
 			return
+		case errors.As(err, &extErr):
+			responseutils.JSON(w, extErr.StatusCode, extErr.ErrorText)
 		default:
 			log.Println(err.Error())
 			responseutils.InternalServerError(w, "Внутренняя ошибка сервера")

@@ -119,11 +119,11 @@ func (s *CommentService) GetAllPostComments(ctx context.Context, postID uuid.UUI
 }
 
 func (s *CommentService) DeleteAllCommentsByPost(ctx context.Context, postID uuid.UUID) error {
-	err := s.likeRepo.DeleteAllByPost(ctx, postID)
+	err := s.commentRepo.DeleteAllByPost(ctx, postID)
 	if err != nil {
 		switch {
 		case errors.Is(err, repoerrors.ErrNotFound):
-			return servErrors.ErrNoLikesOnPost
+			return servErrors.ErrNoCommentsOnPost
 		default:
 			return fmt.Errorf("Delete likes from post %s: %w", postID.String(), err)
 		}

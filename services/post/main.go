@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/auth"
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients/comment"
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients/like"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients/user"
 	"github.com/sharlatan2005/posts_app_backend/services/post/internal/config"
 	"github.com/sharlatan2005/posts_app_backend/services/post/internal/httphandler"
@@ -39,7 +41,9 @@ func main() {
 	var postRepo repo.PostRepo
 	postRepo = postgres.NewPostRepo(db)
 	userClient := user.NewClient(cfg.UserServiceURL)
-	postService := service.NewPostService(postRepo, userClient)
+	commentClient := comment.NewClient(cfg.CommentServiceURL)
+	likeClient := like.NewClient(cfg.LikeServiceURL)
+	postService := service.NewPostService(postRepo, userClient, commentClient, likeClient)
 	postHandler := httphandler.NewPostHandler(postService)
 
 	router := server.NewRouter()
