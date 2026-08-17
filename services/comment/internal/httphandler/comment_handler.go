@@ -61,9 +61,9 @@ func (h *CommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	comment_id := r.URL.Query().Get("comment_id")
+	commentID := r.URL.Query().Get("comment_id")
 
-	err := h.commentService.Delete(r.Context(), uuid.MustParse(comment_id))
+	err := h.commentService.Delete(r.Context(), uuid.MustParse(commentID))
 	if err != nil {
 		switch {
 		case errors.Is(err, servErrors.ErrCommentNotFound):
@@ -118,4 +118,49 @@ func (h *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseutils.JSON(w, http.StatusCreated, "Текст поста успешно изменен.")
+}
+
+func (h *CommentHandler) GetAllPostComments(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		responseutils.StatusMethodNotAllowed(w, "Неправильный метод (должен быть GET)")
+		return
+	}
+
+	postID := r.URL.Query().Get("post_id")
+
+	posts, err := h.commentService.GetAllPostComments(r.Context(), uuid.MustParse(postID))
+	if err != nil {
+		switch {
+		default:
+			log.Println(err.Error())
+			responseutils.InternalServerError(w, "Внутренняя ошибка сервера")
+			return
+		}
+	}
+
+	responseutils.JSON(w, http.StatusCreated, posts)
+}
+
+func (h *CommentHandler) DeleteCommentsByPost(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		responseutils.StatusMethodNotAllowed(w, "Неправильный метод (должен быть DELETE)")
+		return
+	}
+
+	postID := r.URL.Query().Get("post_id")
+
+	err := h.commentService.DeleteAllCommentsByPost(r.Context(), uuid.MustParse(postID))
+	if err != nil {
+		switch {
+		case errors.Is(err, servErrors.ErrNoCommentsOnPost):
+			responseutils.NotFound(w, err.Error())
+			return
+		default:
+			log.Println(err.Error())
+			responseutils.InternalServerError(w, "Внутренняя ошибка сервера")
+			return
+		}
+	}
+
+	responseutils.JSON(w, http.StatusCreated, "Комментарии успешно удалены с поста.")
 }

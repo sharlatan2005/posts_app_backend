@@ -6,6 +6,8 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients/errorsutils"
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients/user"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/ctxutils"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/repoerrors"
 	"github.com/sharlatan2005/posts_app_backend/services/post/internal/domain"
@@ -14,11 +16,15 @@ import (
 )
 
 type PostService struct {
-	postRepo repo.PostRepo
+	postRepo   repo.PostRepo
+	userClient user.Client
 }
 
-func NewPostService(postRepo repo.PostRepo) *PostService {
-	return &PostService{postRepo: postRepo}
+func NewPostService(postRepo repo.PostRepo, userClient user.Client) *PostService {
+	return &PostService{
+		postRepo:   postRepo,
+		userClient: userClient,
+	}
 }
 
 func (s *PostService) Create(ctx context.Context, text string) error {
@@ -73,4 +79,27 @@ func (s *PostService) Update(ctx context.Context, postID uuid.UUID, newText stri
 		}
 	}
 	return nil
+}
+
+func (s *PostService) GetAllUserPosts(ctx context.Context, username string) ([]*domain.Post, error) {
+	u, err := s.userClient.GetUserByUsername(ctx, username)
+	if err != nil {
+		var extErr *errorsutils.ExternalServiceError
+		switch {
+		case errors.As(err, &extErr):
+			return nil, extErr
+		default:
+			return nil, fmt.Errorf("getting user by username: %w", err)
+		}
+	}
+
+	posts, err := s.postRepo.GetAllUserPosts(ctx, u.ID)
+	if err != nil {
+		switch {
+		default:
+			return nil, fmt.Errorf("getting all user posts: %w", err)
+		}
+	}
+
+	return posts, nil
 }

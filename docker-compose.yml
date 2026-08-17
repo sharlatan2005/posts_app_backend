@@ -82,6 +82,22 @@ services:
                 condition: service_healthy
         networks:
             - app-network
+    comment-service:
+        build:
+            context: ./services/comment
+            dockerfile: Dockerfile
+        container_name: comment_service
+        restart: unless-stopped
+        env_file:
+            - configs/.env.global
+            - services/comment/.env.local
+        ports:
+            - "8083:8083"
+        depends_on:
+            postgres:
+                condition: service_healthy
+        networks:
+            - app-network
 volumes:
     postgres_data:
 networks:

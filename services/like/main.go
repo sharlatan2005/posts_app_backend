@@ -5,29 +5,31 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/auth"
-	"github.com/sharlatan2005/posts_app_backend/services/comment/internal/config"
-	"github.com/sharlatan2005/posts_app_backend/services/comment/internal/httphandler"
-	"github.com/sharlatan2005/posts_app_backend/services/comment/internal/repo"
-	"github.com/sharlatan2005/posts_app_backend/services/comment/internal/repo/postgres"
-	"github.com/sharlatan2005/posts_app_backend/services/comment/internal/server"
-	"github.com/sharlatan2005/posts_app_backend/services/comment/internal/service"
+	"github.com/sharlatan2005/posts_app_backend/services/like/internal/config"
+	"github.com/sharlatan2005/posts_app_backend/services/like/internal/httphandler"
+	"github.com/sharlatan2005/posts_app_backend/services/like/internal/repo"
+	"github.com/sharlatan2005/posts_app_backend/services/like/internal/repo/postgres"
+	"github.com/sharlatan2005/posts_app_backend/services/like/internal/server"
+	"github.com/sharlatan2005/posts_app_backend/services/like/internal/service"
 )
 
 func main() {
 	// Прогрузка .env (глобального и локального)
 
-	// if err := godotenv.Load(".env.local"); err != nil {
-	// 	log.Println("No local .env in cmd/")
-	// }
+	if err := godotenv.Load(".env.local"); err != nil {
+		log.Println("No local .env in cmd/")
+	}
 
-	// rootEnv := filepath.Join("..", "..", "configs", ".env.global")
-	// if err := godotenv.Load(rootEnv); err != nil {
-	// 	log.Println("No root .env in configs/")
-	// }
+	rootEnv := filepath.Join("..", "..", "configs", ".env.global")
+	if err := godotenv.Load(rootEnv); err != nil {
+		log.Println("No root .env in configs/")
+	}
 
 	cfg := config.Load()
 	db, err := postgres.NewDB(cfg)
@@ -35,14 +37,14 @@ func main() {
 		log.Fatalf("Connection to database can't be established: %+v", err)
 	}
 
-	var commentRepo repo.CommentRepo
-	commentRepo = postgres.NewCommentRepo(db)
-	commentService := service.NewCommentService(commentRepo)
-	commentHandler := httphandler.NewCommentHandler(commentService)
+	var likeRepo repo.LikeRepo
+	likeRepo = postgres.NewLikeRepo(db)
+	likeService := service.NewLikeService(likeRepo)
+	likeHandler := httphandler.NewLikeHandler(likeService)
 
 	router := server.NewRouter()
 	authStruct := auth.NewAuth([]byte(cfg.JWTSecret))
-	router.SetupRoutes(authStruct, commentHandler)
+	router.SetupRoutes(authStruct, likeHandler)
 
 	srv := &http.Server{
 		Addr:         ":" + cfg.ServicePort,

@@ -11,4 +11,6 @@ type PostRepo interface {
 	Create(ctx context.Context, post *domain.Post) error
 	Delete(ctx context.Context, postID uuid.UUID) error
 	Update(ctx context.Context, postID uuid.UUID, newText string) error
+
+	GetAllUserPosts(ctx context.Context, userID uuid.UUID) ([]*domain.Post, error)
 }

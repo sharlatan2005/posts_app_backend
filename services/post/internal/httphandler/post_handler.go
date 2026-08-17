@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients/errorsutils"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/responseutils"
 	"github.com/sharlatan2005/posts_app_backend/services/post/internal/servErrors"
 	"github.com/sharlatan2005/posts_app_backend/services/post/internal/service"
@@ -59,9 +60,9 @@ func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post_id := r.URL.Query().Get("post_id")
+	postID := r.URL.Query().Get("post_id")
 
-	err := h.postService.Delete(r.Context(), uuid.MustParse(post_id))
+	err := h.postService.Delete(r.Context(), uuid.MustParse(postID))
 	if err != nil {
 		switch {
 		case errors.Is(err, servErrors.ErrPostNotFound):
@@ -110,4 +111,29 @@ func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseutils.JSON(w, http.StatusCreated, "Текст поста успешно изменен.")
+}
+
+func (h *PostHandler) GetAllUserPosts(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		responseutils.StatusMethodNotAllowed(w, "Неправильный метод (должен быть GET)")
+		return
+	}
+
+	username := r.URL.Query().Get("username")
+
+	posts, err := h.postService.GetAllUserPosts(r.Context(), username)
+	if err != nil {
+		var extErr *errorsutils.ExternalServiceError
+		switch {
+		case errors.As(err, &extErr):
+			responseutils.Error(w, extErr.StatusCode, extErr.ErrorText)
+			return
+		default:
+			log.Println(err.Error())
+			responseutils.InternalServerError(w, "Внутренняя ошибка сервера")
+			return
+		}
+	}
+
+	responseutils.JSON(w, http.StatusCreated, posts)
 }

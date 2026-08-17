@@ -123,3 +123,60 @@ func (r *CommentRepo) Update(ctx context.Context, commentID uuid.UUID, newText s
 
 	return nil
 }
+
+func (r *CommentRepo) GetAllPostComments(ctx context.Context, postID uuid.UUID) ([]*domain.Comment, error) {
+	query := fmt.Sprintf(`
+		SELECT id, post_id, author_id, text, created_at FROM %s
+		WHERE post_id = $1
+	`, tableName)
+
+	rows, err := r.db.Pool.Query(ctx, query, postID)
+	if err != nil {
+		return nil, fmt.Errorf("Get all post %s comments: %w", postID.String(), err)
+	}
+	defer rows.Close()
+
+	var comments []*domain.Comment
+	for rows.Next() {
+		c := &domain.Comment{}
+		err := rows.Scan(
+			&c.ID,
+			&c.PostID,
+			&c.AuthorID,
+			&c.Text,
+			&c.CreatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("Scanning into comment: %w", err)
+		}
+		comments = append(comments, c)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return comments, nil
+}
+
+func (r *CommentRepo) DeleteAllByPost(ctx context.Context, postID uuid.UUID) error {
+	query := fmt.Sprintf(`
+		DELETE FROM %s
+		WHERE post_id = $1
+	`, tableName)
+
+	result, err := r.db.Pool.Exec(
+		ctx,
+		query,
+		postID)
+
+	if err != nil {
+		return fmt.Errorf("Delete all comments from post %s query: %w", postID.String(), err)
+	}
+
+	if rows := result.RowsAffected(); rows == 0 {
+		return repoerrors.ErrNotFound
+	}
+
+	return nil
+}

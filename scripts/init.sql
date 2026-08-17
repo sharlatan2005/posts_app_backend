@@ -31,6 +31,13 @@ create table comments.comments(
 
 CREATE SCHEMA IF NOT EXISTS likes;
 
+CREATE TABLE likes.likes (
+    id UUID PRIMARY KEY,
+    post_id UUID NOT NULL,
+    liker_id UUID NOT NULL,
+    CONSTRAINT unique_post_liker UNIQUE (post_id, liker_id)
+);
+
 GRANT ALL PRIVILEGES ON SCHEMA users TO postgres;
 GRANT ALL PRIVILEGES ON SCHEMA posts TO postgres;
 GRANT ALL PRIVILEGES ON SCHEMA comments TO postgres;

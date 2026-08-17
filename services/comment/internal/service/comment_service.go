@@ -105,3 +105,28 @@ func (s *CommentService) Update(ctx context.Context, commentID uuid.UUID, newTex
 	}
 	return nil
 }
+
+func (s *CommentService) GetAllPostComments(ctx context.Context, postID uuid.UUID) ([]*domain.Comment, error) {
+	posts, err := s.commentRepo.GetAllPostComments(ctx, postID)
+	if err != nil {
+		switch {
+		default:
+			return nil, fmt.Errorf("getting all user posts: %w", err)
+		}
+	}
+
+	return posts, nil
+}
+
+func (s *CommentService) DeleteAllCommentsByPost(ctx context.Context, postID uuid.UUID) error {
+	err := s.likeRepo.DeleteAllByPost(ctx, postID)
+	if err != nil {
+		switch {
+		case errors.Is(err, repoerrors.ErrNotFound):
+			return servErrors.ErrNoLikesOnPost
+		default:
+			return fmt.Errorf("Delete likes from post %s: %w", postID.String(), err)
+		}
+	}
+	return nil
+}

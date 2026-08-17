@@ -42,6 +42,18 @@ func (r *Router) SetupRoutes(
 			authStruct.Authenticate,
 			middleware.CORS,
 			middleware.Logger))
+
+	r.mux.HandleFunc("GET /api/comment/get_all_post_comments",
+		middleware.Chain(
+			commentHandler.GetAllPostComments,
+			authStruct.Authenticate,
+			middleware.CORS,
+			middleware.Logger))
+	r.mux.HandleFunc("DELETE /delete_comments_by_post",
+		middleware.Chain(
+			commentHandler.DeleteCommentsByPost,
+			middleware.CORS,
+			middleware.Logger))
 }
 
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {

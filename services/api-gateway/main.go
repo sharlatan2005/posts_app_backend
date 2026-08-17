@@ -15,11 +15,13 @@ func main() {
 	authProxy := proxy.MustNewProxy(cfg.AuthServiceHost, cfg.AuthServicePort)
 	userProxy := proxy.MustNewProxy(cfg.UserServiceHost, cfg.UserServicePort)
 	postProxy := proxy.MustNewProxy(cfg.PostServiceHost, cfg.PostServicePort)
+	commentProxy := proxy.MustNewProxy(cfg.CommentServiceHost, cfg.CommentServicePort)
 
 	// API
-	http.HandleFunc("api/auth/", proxy.ProxyHandler(authProxy))
-	http.HandleFunc("api/user/", proxy.ProxyHandler(userProxy))
-	http.HandleFunc("api/post/", proxy.ProxyHandler(postProxy))
+	http.HandleFunc("/api/auth/", proxy.ProxyHandler(authProxy))
+	http.HandleFunc("/api/user/", proxy.ProxyHandler(userProxy))
+	http.HandleFunc("/api/post/", proxy.ProxyHandler(postProxy))
+	http.HandleFunc("/api/comment/", proxy.ProxyHandler(commentProxy))
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", cfg.ServicePort), nil))
 }

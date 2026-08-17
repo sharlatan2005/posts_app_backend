@@ -86,3 +86,37 @@ func (r *PostRepo) Update(ctx context.Context, postID uuid.UUID, newText string)
 
 	return nil
 }
+
+func (r *PostRepo) GetAllUserPosts(ctx context.Context, userID uuid.UUID) ([]*domain.Post, error) {
+	query := fmt.Sprintf(`
+		SELECT id, author_id, text, created_at FROM %s
+		WHERE author_id = $1
+	`, tableName)
+
+	rows, err := r.db.Pool.Query(ctx, query, userID)
+	if err != nil {
+		return nil, fmt.Errorf("Get all user %s posts: %w", userID.String(), err)
+	}
+	defer rows.Close()
+
+	var posts []*domain.Post
+	for rows.Next() {
+		p := &domain.Post{}
+		err := rows.Scan(
+			&p.ID,
+			&p.AuthorID,
+			&p.Text,
+			&p.CreatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("Scanning into post: %w", err)
+		}
+		posts = append(posts, p)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return posts, nil
+}

@@ -12,4 +12,7 @@ type CommentRepo interface {
 	Delete(ctx context.Context, commentID uuid.UUID) error
 	Update(ctx context.Context, commentID uuid.UUID, newText string) error
 	GetByID(ctx context.Context, commentID uuid.UUID) (*domain.Comment, error)
+
+	GetAllPostComments(ctx context.Context, postID uuid.UUID) ([]*domain.Comment, error)
+	DeleteAllByPost(ctx context.Context, postID uuid.UUID) error
 }
