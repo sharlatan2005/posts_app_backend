@@ -75,7 +75,7 @@ func (h *LikeHandler) RemoveLike(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	responseutils.JSON(w, http.StatusCreated, "Лайк успешно убран с поста.")
+	responseutils.JSON(w, http.StatusOK, "Лайк успешно убран с поста.")
 }
 
 func (h *LikeHandler) GetLikedUserIDs(w http.ResponseWriter, r *http.Request) {
@@ -96,7 +96,7 @@ func (h *LikeHandler) GetLikedUserIDs(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	responseutils.JSON(w, http.StatusCreated, likedUserIDs)
+	responseutils.JSON(w, http.StatusOK, likedUserIDs)
 }
 
 func (h *LikeHandler) DeleteLikesByPost(w http.ResponseWriter, r *http.Request) {
@@ -120,5 +120,5 @@ func (h *LikeHandler) DeleteLikesByPost(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	responseutils.JSON(w, http.StatusCreated, "Лайки успешно удалены с поста.")
+	responseutils.JSON(w, http.StatusOK, "Лайки успешно удалены с поста.")
 }

@@ -74,3 +74,16 @@ func (s *UserService) GetByUsername(ctx context.Context, username string) (*doma
 	}
 	return user, nil
 }
+
+func (s *UserService) GetUserByID(ctx context.Context, userID uuid.UUID) (*domain.User, error) {
+	user, err := s.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		switch {
+		case errors.Is(err, repoerrors.ErrNotFound):
+			return nil, servErrors.ErrUserNotFound
+		default:
+			return nil, err
+		}
+	}
+	return user, nil
+}

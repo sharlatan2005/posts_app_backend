@@ -69,6 +69,9 @@ func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 		case errors.Is(err, servErrors.ErrPostNotFound):
 			responseutils.NotFound(w, err.Error())
 			return
+		case errors.Is(err, servErrors.ErrPostForbiddenAction):
+			responseutils.Forbidden(w, err.Error())
+			return
 		case errors.As(err, &extErr):
 			responseutils.JSON(w, extErr.StatusCode, extErr.ErrorText)
 		default:
@@ -78,7 +81,7 @@ func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	responseutils.JSON(w, http.StatusCreated, "Пост успешно удалён.")
+	responseutils.JSON(w, http.StatusOK, "Пост успешно удалён.")
 }
 
 func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
@@ -103,6 +106,9 @@ func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 		case errors.Is(err, servErrors.ErrPostNotFound):
 			responseutils.NotFound(w, err.Error())
 			return
+		case errors.Is(err, servErrors.ErrPostForbiddenAction):
+			responseutils.Forbidden(w, err.Error())
+			return
 		case errors.Is(err, servErrors.ErrPostTextEmpty):
 			responseutils.BadRequest(w, err.Error())
 			return
@@ -113,7 +119,7 @@ func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	responseutils.JSON(w, http.StatusCreated, "Текст поста успешно изменен.")
+	responseutils.JSON(w, http.StatusOK, "Текст поста успешно изменен.")
 }
 
 func (h *PostHandler) GetAllUserPosts(w http.ResponseWriter, r *http.Request) {
@@ -138,5 +144,5 @@ func (h *PostHandler) GetAllUserPosts(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	responseutils.JSON(w, http.StatusCreated, posts)
+	responseutils.JSON(w, http.StatusOK, posts)
 }

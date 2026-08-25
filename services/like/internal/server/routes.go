@@ -39,7 +39,6 @@ func (r *Router) SetupRoutes(
 	r.mux.HandleFunc("GET /api/like/get_liked_user_ids",
 		middleware.Chain(
 			likeHandler.GetLikedUserIDs,
-			authStruct.Authenticate,
 			middleware.CORS,
 			middleware.Logger))
 

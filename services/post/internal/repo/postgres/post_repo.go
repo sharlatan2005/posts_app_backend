@@ -2,9 +2,11 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/repoerrors"
 	"github.com/sharlatan2005/posts_app_backend/services/post/internal/domain"
 )
@@ -39,6 +41,39 @@ func (r *PostRepo) Create(ctx context.Context, post *domain.Post) error {
 	}
 
 	return nil
+}
+
+func (r *PostRepo) GetByID(ctx context.Context, postID uuid.UUID) (*domain.Post, error) {
+	query := fmt.Sprintf(`
+		SELECT author_id, text, created_at
+		FROM %s
+		WHERE id = $1
+	`, tableName)
+
+	post := &domain.Post{
+		ID: postID,
+	}
+
+	err := r.db.Pool.QueryRow(
+		ctx,
+		query,
+		postID,
+	).Scan(
+		&post.AuthorID,
+		&post.Text,
+		&post.CreatedAt,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			return nil, repoerrors.ErrNotFound
+		default:
+			return nil, fmt.Errorf("Select post %s query: %w", postID.String(), err)
+		}
+	}
+
+	return post, nil
 }
 
 func (r *PostRepo) Delete(ctx context.Context, postID uuid.UUID) error {

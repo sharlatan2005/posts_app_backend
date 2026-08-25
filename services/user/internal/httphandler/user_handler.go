@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/responseutils"
 	"github.com/sharlatan2005/posts_app_backend/services/user/internal/servErrors"
 	"github.com/sharlatan2005/posts_app_backend/services/user/internal/service"
@@ -97,6 +98,30 @@ func (h *UserHandler) GetByUsername(w http.ResponseWriter, r *http.Request) {
 	username := r.URL.Query().Get("username")
 
 	user, err := h.userService.GetByUsername(r.Context(), username)
+	if err != nil {
+		switch {
+		case errors.Is(err, servErrors.ErrUserNotFound):
+			responseutils.NotFound(w, "Нет такого пользователя")
+			return
+		default:
+			log.Println(err.Error())
+			responseutils.InternalServerError(w, "Внутренняя ошибка сервера")
+			return
+		}
+	}
+
+	responseutils.JSON(w, http.StatusOK, user)
+}
+
+func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		responseutils.StatusMethodNotAllowed(w, "Неправильный метод (должен быть GET)")
+		return
+	}
+
+	userID := r.URL.Query().Get("user_id")
+
+	user, err := h.userService.GetUserByID(r.Context(), uuid.MustParse(userID))
 	if err != nil {
 		switch {
 		case errors.Is(err, servErrors.ErrUserNotFound):

@@ -18,6 +18,7 @@ func NewRouter() *Router {
 
 func (r *Router) SetupRoutes(authHandler *httphandler.AuthHandler) {
 	r.mux.HandleFunc("POST /api/auth/register", authHandler.Register)
+
 	r.mux.HandleFunc("POST /api/auth/login", authHandler.Login)
 }
 

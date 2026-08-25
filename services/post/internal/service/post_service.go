@@ -61,7 +61,23 @@ func (s *PostService) Create(ctx context.Context, text string) error {
 }
 
 func (s *PostService) Delete(ctx context.Context, postID uuid.UUID) error {
-	err := s.commentClient.DeleteCommentsByPost(ctx, postID)
+
+	post, err := s.postRepo.GetByID(ctx, postID)
+	if err != nil {
+		switch {
+		case errors.Is(err, repoerrors.ErrNotFound):
+			return servErrors.ErrPostNotFound
+		default:
+			return err
+		}
+	}
+
+	userID := ctxutils.GetUserID(ctx)
+	if userID != post.AuthorID {
+		return servErrors.ErrPostForbiddenAction
+	}
+
+	err = s.commentClient.DeleteCommentsByPost(ctx, postID)
 	if err != nil {
 		var extErr *errorsutils.ExternalServiceError
 		switch {
@@ -104,7 +120,22 @@ func (s *PostService) Update(ctx context.Context, postID uuid.UUID, newText stri
 		return servErrors.ErrPostTextEmpty
 	}
 
-	err := s.postRepo.Update(ctx, postID, newText)
+	post, err := s.postRepo.GetByID(ctx, postID)
+	if err != nil {
+		switch {
+		case errors.Is(err, repoerrors.ErrNotFound):
+			return servErrors.ErrPostNotFound
+		default:
+			return err
+		}
+	}
+
+	userID := ctxutils.GetUserID(ctx)
+	if userID != post.AuthorID {
+		return servErrors.ErrPostForbiddenAction
+	}
+
+	err = s.postRepo.Update(ctx, postID, newText)
 
 	if err != nil {
 		switch {

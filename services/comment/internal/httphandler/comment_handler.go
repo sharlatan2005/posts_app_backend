@@ -79,7 +79,7 @@ func (h *CommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	responseutils.JSON(w, http.StatusCreated, "Комментарий успешно удалён.")
+	responseutils.JSON(w, http.StatusOK, "Комментарий успешно удалён.")
 }
 
 func (h *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) {
@@ -117,7 +117,7 @@ func (h *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	responseutils.JSON(w, http.StatusCreated, "Текст поста успешно изменен.")
+	responseutils.JSON(w, http.StatusOK, "Текст поста успешно изменен.")
 }
 
 func (h *CommentHandler) GetAllPostComments(w http.ResponseWriter, r *http.Request) {
@@ -162,5 +162,5 @@ func (h *CommentHandler) DeleteCommentsByPost(w http.ResponseWriter, r *http.Req
 		}
 	}
 
-	responseutils.JSON(w, http.StatusCreated, "Комментарии успешно удалены с поста.")
+	responseutils.JSON(w, http.StatusOK, "Комментарии успешно удалены с поста.")
 }

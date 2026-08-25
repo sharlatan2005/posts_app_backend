@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/repoerrors"
 	"github.com/sharlatan2005/posts_app_backend/services/user/internal/domain"
@@ -93,6 +94,42 @@ func (r *UserRepo) GetByUsername(ctx context.Context, username string) (*domain.
 			return nil, repoerrors.ErrNotFound
 		default:
 			return nil, fmt.Errorf("Query of user: %w", err)
+		}
+	}
+
+	return user, nil
+}
+
+func (r *UserRepo) GetByID(ctx context.Context, userID uuid.UUID) (*domain.User, error) {
+	query := fmt.Sprintf(`
+		SELECT username, password_hash, name, surname, score, created_at
+		FROM %s
+		WHERE id = $1
+	`, tableName)
+
+	user := &domain.User{
+		ID: userID,
+	}
+
+	err := r.db.Pool.QueryRow(
+		ctx,
+		query,
+		userID,
+	).Scan(
+		&user.Username,
+		&user.Password_hash,
+		&user.Name,
+		&user.Surname,
+		&user.Score,
+		&user.Created_at,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			return nil, repoerrors.ErrNotFound
+		default:
+			return nil, fmt.Errorf("Select user %s query: %w", userID.String(), err)
 		}
 	}
 

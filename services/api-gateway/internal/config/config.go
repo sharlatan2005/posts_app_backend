@@ -13,6 +13,8 @@ type Config struct {
 	PostServicePort    string
 	CommentServiceHost string
 	CommentServicePort string
+	LikeServiceHost    string
+	LikeServicePort    string
 	ServicePort        string
 }
 
@@ -26,6 +28,8 @@ func Load() *Config {
 		PostServicePort:    getEnv("POST_SERVICE_PORT", "8082"),
 		CommentServiceHost: getEnv("COMMENT_SERVICE_HOST", "comment-service"),
 		CommentServicePort: getEnv("COMMENT_SERVICE_PORT", "8083"),
+		LikeServiceHost:    getEnv("LIKE_SERVICE_HOST", "like-service"),
+		LikeServicePort:    getEnv("Like_SERVICE_PORT", "8084"),
 		ServicePort:        getEnv("SERVICE_PORT", "8080"),
 	}
 }

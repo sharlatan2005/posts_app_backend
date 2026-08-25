@@ -35,6 +35,7 @@ CREATE TABLE likes.likes (
     id UUID PRIMARY KEY,
     post_id UUID NOT NULL,
     liker_id UUID NOT NULL,
+	liked_at timestamp not null default current_timestamp,
     CONSTRAINT unique_post_liker UNIQUE (post_id, liker_id)
 );
 

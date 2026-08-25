@@ -46,7 +46,6 @@ func (r *Router) SetupRoutes(
 	r.mux.HandleFunc("GET /api/post/get_all_user_posts",
 		middleware.Chain(
 			postHandler.GetAllUserPosts,
-			authStruct.Authenticate,
 			middleware.CORS,
 			middleware.Logger))
 }
