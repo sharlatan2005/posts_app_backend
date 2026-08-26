@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/auth"
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/kafka/producer"
 	"github.com/sharlatan2005/posts_app_backend/services/like/internal/config"
 	"github.com/sharlatan2005/posts_app_backend/services/like/internal/httphandler"
 	"github.com/sharlatan2005/posts_app_backend/services/like/internal/repo"
@@ -37,7 +39,13 @@ func main() {
 
 	var likeRepo repo.LikeRepo
 	likeRepo = postgres.NewLikeRepo(db)
-	likeService := service.NewLikeService(likeRepo)
+
+	kafkaProducer, err := producer.NewMyProducer([]string{cfg.KafkaBrokerAddr})
+	if err != nil {
+		fmt.Printf("Ошибка при создании продюсера: %v", err)
+	}
+
+	likeService := service.NewLikeService(likeRepo, kafkaProducer)
 	likeHandler := httphandler.NewLikeHandler(likeService)
 
 	router := server.NewRouter()

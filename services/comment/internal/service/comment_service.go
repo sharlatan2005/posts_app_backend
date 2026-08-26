@@ -2,11 +2,16 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/ctxutils"
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/events"
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/kafka/producer"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/repoerrors"
 	"github.com/sharlatan2005/posts_app_backend/services/comment/internal/domain"
 	"github.com/sharlatan2005/posts_app_backend/services/comment/internal/repo"
@@ -14,11 +19,17 @@ import (
 )
 
 type CommentService struct {
-	commentRepo repo.CommentRepo
+	commentRepo   repo.CommentRepo
+	kafkaProducer *producer.MyProducer
 }
 
-func NewCommentService(commentRepo repo.CommentRepo) *CommentService {
-	return &CommentService{commentRepo: commentRepo}
+func NewCommentService(
+	commentRepo repo.CommentRepo,
+	kafkaProducer *producer.MyProducer) *CommentService {
+	return &CommentService{
+		commentRepo:   commentRepo,
+		kafkaProducer: kafkaProducer,
+	}
 }
 
 func (s *CommentService) Create(ctx context.Context, postID uuid.UUID, text string) error {
@@ -41,6 +52,29 @@ func (s *CommentService) Create(ctx context.Context, postID uuid.UUID, text stri
 			return fmt.Errorf("create comment: %w", err)
 		}
 	}
+
+	go func(userID uuid.UUID) {
+
+		activity := events.Activity{
+			Type:         "comment",
+			UserID:       userID,
+			ActivityTime: time.Now(),
+		}
+
+		data, err := json.Marshal(activity)
+		if err != nil {
+			log.Printf("Ошибка сериализации: %v", err)
+			return
+		}
+
+		err = s.kafkaProducer.SendMessage("activities", userID.String(), data)
+		if err != nil {
+			log.Printf("Ошибка отправки в Kafka: %v", err)
+			return
+		}
+		log.Printf("Сообщение о выкладывании поста пользователя %s доставлено!", userID.String())
+
+	}(comment.AuthorID)
 
 	return nil
 }

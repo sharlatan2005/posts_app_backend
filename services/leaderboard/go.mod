@@ -4,7 +4,7 @@ go 1.26.1
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/sharlatan2005/chat_app_go_backend_pkg v0.0.0-20260822173505-1dfc837cfb15
+	github.com/sharlatan2005/chat_app_go_backend_pkg v1.0.0
 )
 
 require (

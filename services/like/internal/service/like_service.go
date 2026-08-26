@@ -2,11 +2,16 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/ctxutils"
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/events"
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/kafka/producer"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/repoerrors"
 	"github.com/sharlatan2005/posts_app_backend/services/like/internal/domain"
 	"github.com/sharlatan2005/posts_app_backend/services/like/internal/repo"
@@ -14,11 +19,16 @@ import (
 )
 
 type LikeService struct {
-	likeRepo repo.LikeRepo
+	likeRepo      repo.LikeRepo
+	kafkaProducer *producer.MyProducer
 }
 
-func NewLikeService(likeRepo repo.LikeRepo) *LikeService {
-	return &LikeService{likeRepo: likeRepo}
+func NewLikeService(likeRepo repo.LikeRepo,
+	kafkaProducer *producer.MyProducer) *LikeService {
+	return &LikeService{
+		likeRepo:      likeRepo,
+		kafkaProducer: kafkaProducer,
+	}
 }
 
 func (s *LikeService) AddLike(ctx context.Context, postID uuid.UUID) error {
@@ -37,6 +47,28 @@ func (s *LikeService) AddLike(ctx context.Context, postID uuid.UUID) error {
 		}
 	}
 
+	go func(userID uuid.UUID) {
+
+		activity := events.Activity{
+			Type:         "like",
+			UserID:       userID,
+			ActivityTime: time.Now(),
+		}
+
+		data, err := json.Marshal(activity)
+		if err != nil {
+			log.Printf("Ошибка сериализации: %v", err)
+			return
+		}
+
+		err = s.kafkaProducer.SendMessage("activities", userID.String(), data)
+		if err != nil {
+			log.Printf("Ошибка отправки в Kafka: %v", err)
+			return
+		}
+		log.Printf("Сообщение о выкладывании поста пользователя %s доставлено!", userID.String())
+
+	}(like.LikerID)
 	return nil
 }
 

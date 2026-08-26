@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -12,6 +13,7 @@ import (
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients/comment"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients/like"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients/user"
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/kafka/producer"
 	"github.com/sharlatan2005/posts_app_backend/services/post/internal/config"
 	"github.com/sharlatan2005/posts_app_backend/services/post/internal/httphandler"
 	"github.com/sharlatan2005/posts_app_backend/services/post/internal/repo"
@@ -40,10 +42,17 @@ func main() {
 
 	var postRepo repo.PostRepo
 	postRepo = postgres.NewPostRepo(db)
+
 	userClient := user.NewClient(cfg.UserServiceURL)
 	commentClient := comment.NewClient(cfg.CommentServiceURL)
 	likeClient := like.NewClient(cfg.LikeServiceURL)
-	postService := service.NewPostService(postRepo, userClient, commentClient, likeClient)
+
+	kafkaProducer, err := producer.NewMyProducer([]string{cfg.KafkaBrokerAddr})
+	if err != nil {
+		fmt.Printf("Ошибка при создании продюсера: %v", err)
+	}
+
+	postService := service.NewPostService(postRepo, userClient, commentClient, likeClient, kafkaProducer)
 	postHandler := httphandler.NewPostHandler(postService)
 
 	router := server.NewRouter()

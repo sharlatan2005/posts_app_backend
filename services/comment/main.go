@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/auth"
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/kafka/producer"
 	"github.com/sharlatan2005/posts_app_backend/services/comment/internal/config"
 	"github.com/sharlatan2005/posts_app_backend/services/comment/internal/httphandler"
 	"github.com/sharlatan2005/posts_app_backend/services/comment/internal/repo"
@@ -37,7 +39,13 @@ func main() {
 
 	var commentRepo repo.CommentRepo
 	commentRepo = postgres.NewCommentRepo(db)
-	commentService := service.NewCommentService(commentRepo)
+
+	kafkaProducer, err := producer.NewMyProducer([]string{cfg.KafkaBrokerAddr})
+	if err != nil {
+		fmt.Printf("Ошибка при создании продюсера: %v", err)
+	}
+
+	commentService := service.NewCommentService(commentRepo, kafkaProducer)
 	commentHandler := httphandler.NewCommentHandler(commentService)
 
 	router := server.NewRouter()

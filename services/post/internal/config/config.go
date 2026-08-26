@@ -18,6 +18,8 @@ type Config struct {
 	UserServiceURL    string
 	CommentServiceURL string
 	LikeServiceURL    string
+	KafkaBrokerAddr   string
+	KafkaTopicName    string
 }
 
 func Load() *Config {
@@ -33,6 +35,8 @@ func Load() *Config {
 		UserServiceURL:    getEnv("USER_SERVICE_URL", "http://user-service:8080"),
 		CommentServiceURL: getEnv("COMMENT_SERVICE_URL", "http://comment-service:8083"),
 		LikeServiceURL:    getEnv("LIKE_SERVICE_URL", "http://like-service:8084"),
+		KafkaBrokerAddr:   getEnv("KAFKA_BROKER_ADDR", "kafka:9092"),
+		KafkaTopicName:    getEnv("KAFKA_TOPIC_NAME", "activities"),
 	}
 }
 

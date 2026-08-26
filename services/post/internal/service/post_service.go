@@ -2,9 +2,12 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients/comment"
@@ -12,6 +15,8 @@ import (
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients/like"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/clients/user"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/ctxutils"
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/events"
+	"github.com/sharlatan2005/chat_app_go_backend_pkg/kafka/producer"
 	"github.com/sharlatan2005/chat_app_go_backend_pkg/repoerrors"
 	"github.com/sharlatan2005/posts_app_backend/services/post/internal/domain"
 	"github.com/sharlatan2005/posts_app_backend/services/post/internal/repo"
@@ -23,17 +28,20 @@ type PostService struct {
 	userClient    user.Client
 	commentClient comment.Client
 	likeClient    like.Client
+	kafkaProducer *producer.MyProducer
 }
 
 func NewPostService(postRepo repo.PostRepo,
 	userClient user.Client,
 	commentClient comment.Client,
-	likeClient like.Client) *PostService {
+	likeClient like.Client,
+	kafkaProducer *producer.MyProducer) *PostService {
 	return &PostService{
 		postRepo:      postRepo,
 		userClient:    userClient,
 		commentClient: commentClient,
 		likeClient:    likeClient,
+		kafkaProducer: kafkaProducer,
 	}
 }
 
@@ -56,6 +64,29 @@ func (s *PostService) Create(ctx context.Context, text string) error {
 			return fmt.Errorf("create post: %w", err)
 		}
 	}
+
+	go func(userID uuid.UUID) {
+
+		activity := events.Activity{
+			Type:         "post",
+			UserID:       userID,
+			ActivityTime: time.Now(),
+		}
+
+		data, err := json.Marshal(activity)
+		if err != nil {
+			log.Printf("Ошибка сериализации: %v", err)
+			return
+		}
+
+		err = s.kafkaProducer.SendMessage("activities", userID.String(), data)
+		if err != nil {
+			log.Printf("Ошибка отправки в Kafka: %v", err)
+			return
+		}
+		log.Printf("Сообщение о выкладывании поста пользователя %s доставлено!", userID.String())
+
+	}(post.AuthorID)
 
 	return nil
 }

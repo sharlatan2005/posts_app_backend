@@ -34,6 +34,8 @@ github.com/rcrowley/go-metrics v0.0.0-20250401214520-65e299d6c5c9 h1:bsUq1dX0N8A
 github.com/rcrowley/go-metrics v0.0.0-20250401214520-65e299d6c5c9/go.mod h1:bCqnVzQkZxMG4s8nGwiZ5l3QUCyqpo9Y+/ZMZ9VjZe4=
 github.com/sharlatan2005/chat_app_go_backend_pkg v0.0.0-20260822173505-1dfc837cfb15 h1:6T8+pY67BpLTrrTj/fMusk2SVjOUdDNBhA8y1f/ev38=
 github.com/sharlatan2005/chat_app_go_backend_pkg v0.0.0-20260822173505-1dfc837cfb15/go.mod h1:6HuTs/oq6aZ7gzcbOB4OLFgyKVtpe++xicYWq0+6eok=
+github.com/sharlatan2005/chat_app_go_backend_pkg v1.0.0 h1:yTZmFalwUlD3d07SoU+qJhLi48Th8HP9Ninwox1C4u0=
+github.com/sharlatan2005/chat_app_go_backend_pkg v1.0.0/go.mod h1:6HuTs/oq6aZ7gzcbOB4OLFgyKVtpe++xicYWq0+6eok=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.4.0/go.mod h1:YvHI0jy2hoMjB+UWwv71VJQ9isScKT/TqJzVSSt89Yw=
 github.com/stretchr/objx v0.5.0/go.mod h1:Yh+to48EsGEfYuaHDzXPcE3xhTkx73EhmCGUpEOglKo=

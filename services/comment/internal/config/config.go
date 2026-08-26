@@ -7,26 +7,30 @@ import (
 )
 
 type Config struct {
-	DBHost      string
-	DBPort      int
-	DBUser      string
-	DBPassword  string
-	DBName      string
-	DBSSLMode   string
-	ServicePort string
-	JWTSecret   string
+	DBHost          string
+	DBPort          int
+	DBUser          string
+	DBPassword      string
+	DBName          string
+	DBSSLMode       string
+	ServicePort     string
+	JWTSecret       string
+	KafkaBrokerAddr string
+	KafkaTopicName  string
 }
 
 func Load() *Config {
 	return &Config{
-		DBHost:      getEnv("DB_HOST", "localhost"),
-		DBPort:      getEnvAsInt("DB_PORT", 5432),
-		DBUser:      getEnv("DB_USER", "postgres"),
-		DBPassword:  getEnv("DB_PASSWORD", "postgres"),
-		DBName:      getEnv("DB_NAME", "posts_app_db"),
-		DBSSLMode:   getEnv("DB_SSL_MODE", "disable"),
-		ServicePort: getEnv("SERVICE_PORT", "8082"),
-		JWTSecret:   getEnv("JWT_SECRET", "my_beautiful_secret"),
+		DBHost:          getEnv("DB_HOST", "localhost"),
+		DBPort:          getEnvAsInt("DB_PORT", 5432),
+		DBUser:          getEnv("DB_USER", "postgres"),
+		DBPassword:      getEnv("DB_PASSWORD", "postgres"),
+		DBName:          getEnv("DB_NAME", "posts_app_db"),
+		DBSSLMode:       getEnv("DB_SSL_MODE", "disable"),
+		ServicePort:     getEnv("SERVICE_PORT", "8082"),
+		JWTSecret:       getEnv("JWT_SECRET", "my_beautiful_secret"),
+		KafkaBrokerAddr: getEnv("KAFKA_BROKER_ADDR", "kafka:9092"),
+		KafkaTopicName:  getEnv("KAFKA_TOPIC_NAME", "activities"),
 	}
 }
 

@@ -130,7 +130,7 @@ services:
             KAFKA_PROCESS_ROLES: broker,controller
             KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
             KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-            KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+            KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
             KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
             KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
             KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
@@ -153,15 +153,25 @@ services:
             dockerfile: Dockerfile
         container_name: leaderboard_service
         restart: unless-stopped
-        networks:
-            - app-network
         depends_on:
             postgres:
                 condition: service_healthy
             kafka:
                 condition: service_healthy
+        networks:
+            - app-network
+    redis:
+        image: redis:7-alpine
+        container_name: redis_service
+        ports:
+        - "6379:6379"
+        volumes:
+        - redis_data:/data
+        command: redis-server --appendonly yes
+        restart: unless-stopped
 volumes:
     postgres_data:
+    redis_data:
 networks:
     app-network:
         driver: bridge

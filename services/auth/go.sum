@@ -4,3 +4,5 @@ github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
 github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/sharlatan2005/chat_app_go_backend_pkg v0.0.0-20260814100057-9bc7e8648360 h1:9dLy8Yom8R4czcDbSZSsTVJZi9pj86Ee6u/goe+WOdg=
 github.com/sharlatan2005/chat_app_go_backend_pkg v0.0.0-20260814100057-9bc7e8648360/go.mod h1:b3Pqxe+SHVmL1IJZiigwcx17TqhPgkKEm52fs5JrSBc=
+github.com/sharlatan2005/chat_app_go_backend_pkg v1.0.0 h1:yTZmFalwUlD3d07SoU+qJhLi48Th8HP9Ninwox1C4u0=
+github.com/sharlatan2005/chat_app_go_backend_pkg v1.0.0/go.mod h1:6HuTs/oq6aZ7gzcbOB4OLFgyKVtpe++xicYWq0+6eok=
