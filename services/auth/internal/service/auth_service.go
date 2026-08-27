@@ -45,9 +45,19 @@ func (s *AuthService) RegisterUser(ctx context.Context, username string, passwor
 		}
 	}
 
-	new_uuid := uuid.New()
+	createdUser, err := s.userClient.GetUserByUsername(ctx, username)
+	if err != nil {
+		var extErr *errorsutils.ExternalServiceError
+		switch {
+		case errors.As(err, &extErr):
+			return nil, extErr
+		default:
+			return nil, fmt.Errorf("getting created user by username: %w", err)
+		}
+	}
+
 	authStruct := auth.NewAuth(s.jwtSecret)
-	token, err := authStruct.GenerateToken(new_uuid, username)
+	token, err := authStruct.GenerateToken(createdUser.ID, username)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to generate token: %w", err)
@@ -55,9 +65,9 @@ func (s *AuthService) RegisterUser(ctx context.Context, username string, passwor
 
 	return &AuthResult{
 		Token:     token,
-		UserID:    new_uuid.String(),
+		UserID:    createdUser.ID.String(),
 		Username:  username,
-		CreatedAt: time.Now(),
+		CreatedAt: createdUser.CreatedAt,
 	}, nil
 }
 
