@@ -69,6 +69,7 @@ func (s *LikeService) AddLike(ctx context.Context, postID uuid.UUID) error {
 		log.Printf("Сообщение о выкладывании поста пользователя %s доставлено!", userID.String())
 
 	}(like.LikerID)
+
 	return nil
 }
 

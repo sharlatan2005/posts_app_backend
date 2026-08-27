@@ -153,6 +153,11 @@ services:
             dockerfile: Dockerfile
         container_name: leaderboard_service
         restart: unless-stopped
+        env_file:
+            - configs/.env.global
+            - services/leaderboard/.env.local
+        ports:
+            - "8085:8085"
         depends_on:
             postgres:
                 condition: service_healthy
@@ -169,6 +174,8 @@ services:
         - redis_data:/data
         command: redis-server --appendonly yes
         restart: unless-stopped
+        networks:
+            - app-network
 volumes:
     postgres_data:
     redis_data:
